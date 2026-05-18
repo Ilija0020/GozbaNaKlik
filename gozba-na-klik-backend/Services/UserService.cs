@@ -13,7 +13,7 @@ namespace gozba_na_klik_backend.Services
             _userRepository = userRepository;
         }
 
-        public async Task<string> RegisterUserAsync(User newUser)
+        public async Task<string> RegisterUserAsync(User newUser, bool isFromAdmin = false)
         {
             User existingUser = await _userRepository.GetUserByUsernameAsync(newUser.Username); 
             if (existingUser != null)
@@ -25,8 +25,10 @@ namespace gozba_na_klik_backend.Services
             {
                 return "Email adresa je vec registrovana.";
             }
-
-            newUser.Role = Role.Customer;
+            if (!isFromAdmin)
+            {
+                newUser.Role = Role.Customer;
+            }
             await _userRepository.AddUserAsync(newUser);
             return "";
         }
@@ -39,6 +41,11 @@ namespace gozba_na_klik_backend.Services
                 return null;
             }
             return user;
+        }
+
+        public async Task<List<User>> GetAllUsersAsync()
+            {
+                return await _userRepository.GetAllUsersAsync();
         }
     }
 }

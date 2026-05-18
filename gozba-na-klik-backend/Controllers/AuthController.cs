@@ -51,5 +51,23 @@ namespace gozba_na_klik_backend.Controllers
                 return StatusCode(500, "Doslo je do greske na serveru. Molimo pokusajte ponovo kasnije.");
             }
         }
+
+        [HttpPost("register-admin")]
+        public async Task<IActionResult> RegisterByAdmin([FromBody] User newUser)
+        {
+            try
+            {
+                string errorMessage = await _userService.RegisterUserAsync(newUser, true);
+                if (errorMessage != "")
+                {
+                    return BadRequest(errorMessage);
+                }
+                return Ok("Korisnik uspesno registrovan.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Doslo je do greske na serveru. Molimo pokusajte ponovo kasnije.");
+            }
+        }
     }
 }
