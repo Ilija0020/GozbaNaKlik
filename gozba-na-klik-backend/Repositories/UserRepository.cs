@@ -1,6 +1,7 @@
 ﻿using gozba_na_klik_backend.Data;
 using gozba_na_klik_backend.Models;
 using Microsoft.EntityFrameworkCore;
+using gozba_na_klik_backend.Models.Enums;
 
 namespace gozba_na_klik_backend.Repositories
 {
@@ -32,6 +33,13 @@ namespace gozba_na_klik_backend.Repositories
         public async Task<List<User>> GetAllUsersAsync()
         {
             return await _context.Users.ToListAsync();
+        }
+
+        public async Task<List<User>> GetOwners()
+        {
+            return await _context.Users
+                .Where(u => u.Role == Role.Owner)
+                .ToListAsync();
         }
     }
 }

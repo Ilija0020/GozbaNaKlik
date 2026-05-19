@@ -47,5 +47,10 @@ namespace gozba_na_klik_backend.Services
             {
                 return await _userRepository.GetAllUsersAsync();
         }
+
+        public async Task<List<User>> GetAllOwnersAsync()
+        {
+            return await _userRepository.GetOwners();
+        }
     }
 }
