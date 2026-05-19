@@ -21,11 +21,46 @@ namespace gozba_na_klik_backend.Controllers
             try
             {
                 var users = await _userService.GetAllUsersAsync();
-                return Ok(users);
+
+                var result = users.Select(u => new
+                {
+                    id = u.Id,
+                    name = u.Name,
+                    surname = u.Surname,
+                    email = u.Email,
+                    username = u.Username,
+                    role = u.Role
+                });
+
+                return Ok(result);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, "Doslo je do greske na serveru. Molimo pokusajte ponovo kasnije.");
+                return StatusCode(500, "Doslo je do greske na serveru.");
+            }
+        }
+
+        [HttpGet("owners")]
+        public async Task<IActionResult> GetAllOwnersAsync()
+        {
+            try
+            {
+                var owners = await _userService.GetAllOwnersAsync();
+
+                var result = owners.Select(u => new
+                {
+                    id = u.Id,
+                    name = u.Name,
+                    surname = u.Surname,
+                    username = u.Username,
+                    role = u.Role
+                });
+
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Doslo je do greske na serveru.");
             }
         }
     }
