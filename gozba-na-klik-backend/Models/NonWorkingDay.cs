@@ -1,9 +1,9 @@
-﻿namespace gozba_na_klik_backend.Models
+namespace gozba_na_klik_backend.Models
 {
     public class NonWorkingDay
     {
         public int Id { get; set; }
-        public DateTime Date { get; set; }
+        public DateOnly Date { get; set; }
         public int RestaurantId { get; set; }
     }
 }
