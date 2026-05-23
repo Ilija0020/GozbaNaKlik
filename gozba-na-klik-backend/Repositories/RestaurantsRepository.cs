@@ -54,6 +54,8 @@ namespace gozba_na_klik_backend.Repositories
         {
             return await _context.Restaurants
                 .Where(r => r.OwnerId == ownerId && !r.IsDeleted)
+                .Include(r => r.WorkingHours)
+                .Include(r => r.NonWorkingDays)
                 .ToListAsync();
         }
         public async Task ReplaceWorkingHoursAsync(int restaurantId, List<RestaurantWorkingHours> newHours)
