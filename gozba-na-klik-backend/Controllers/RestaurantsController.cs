@@ -91,7 +91,7 @@ namespace gozba_na_klik_backend.Controllers
         }
 
         //Owner specific
-        [HttpGet("owner/{ownerId}")]
+        [HttpGet("owners/{ownerId}")]
         public async Task<IActionResult> GetRestaurantsByOwnerId(int ownerId)
         {
             try
