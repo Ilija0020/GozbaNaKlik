@@ -151,6 +151,78 @@ namespace gozba_na_klik_backend.Data
                 Role = Role.Admin
             }
             );
+
+            // --- 1. VLASNICI (OWNERS) ---
+            // Koristimo veće ID-jeve (npr. od 100 pa na gore) da ne bi došlo do konflikta sa tvojim već postojećim podacima (poput admina).
+            modelBuilder.Entity<User>().HasData(
+                new User { Id = 101, Name = "Petar", Surname = "Petrovic", Email = "petar@vlasnik.com", Username = "petar_v", Password = "123", Role = Role.Owner },
+                new User { Id = 102, Name = "Marko", Surname = "Markovic", Email = "marko@vlasnik.com", Username = "marko_v", Password = "123", Role = Role.Owner },
+                new User { Id = 103, Name = "Jovan", Surname = "Jovanovic", Email = "jovan@vlasnik.com", Username = "jovan_v", Password = "123", Role = Role.Owner }
+            );
+
+            // --- 2. RESTORANI ---
+            // Svaki vlasnik dobija po 2 restorana
+            modelBuilder.Entity<Restaurant>().HasData(
+                new Restaurant { Id = 101, Name = "Restoran Kod Petra", Address = "Glavna 10, Novi Sad", OwnerId = 101 },
+                new Restaurant { Id = 102, Name = "Petrova Picerija", Address = "Dunavska 5, Novi Sad", OwnerId = 101 },
+
+                new Restaurant { Id = 103, Name = "Markova Kafana", Address = "Zmaj Jovina 12, Novi Sad", OwnerId = 102 },
+                new Restaurant { Id = 104, Name = "Marko Grill", Address = "Bulevar Oslobodjenja 45, Novi Sad", OwnerId = 102 },
+
+                new Restaurant { Id = 105, Name = "Jovanov Restoran", Address = "Laze Teleckog 3, Novi Sad", OwnerId = 103 },
+                new Restaurant { Id = 106, Name = "Pekara Jovan", Address = "Futoski put 10, Novi Sad", OwnerId = 103 }
+            );
+
+            // --- 3. JELOVNICI (MENUS) ---
+            // Svaki restoran ima po 1 jelovnik
+            modelBuilder.Entity<Menu>().HasData(
+                new Menu { Id = 101, RestaurantId = 101, Restaurant = null!, Meals = null! },
+                new Menu { Id = 102, RestaurantId = 102, Restaurant = null!, Meals = null! },
+                new Menu { Id = 103, RestaurantId = 103, Restaurant = null!, Meals = null! },
+                new Menu { Id = 104, RestaurantId = 104, Restaurant = null!, Meals = null! },
+                new Menu { Id = 105, RestaurantId = 105, Restaurant = null!, Meals = null! },
+                new Menu { Id = 106, RestaurantId = 106, Restaurant = null!, Meals = null! }
+            );
+
+            // --- 4. JELA (MEALS) ---
+            // Za svaki jelovnik dodajemo po 4 jela (ukupno 24)
+            modelBuilder.Entity<Meal>().HasData(
+                // Jela za Restoran Kod Petra (Meni 101)
+                new Meal { Id = 101, Name = "Cevapi", Description = "10 komada sa lukom", Price = 800, MenuId = 101, Menu = null! },
+                new Meal { Id = 102, Name = "Pljeskavica", Description = "Gurmanska 250g", Price = 700, MenuId = 101, Menu = null! },
+                new Meal { Id = 103, Name = "Sopska Salata", Description = "Paradajz, krastavac, sir", Price = 350, MenuId = 101, Menu = null! },
+                new Meal { Id = 104, Name = "Teleca Corba", Description = "Domaca corba", Price = 400, MenuId = 101, Menu = null! },
+
+                // Jela za Petrova Picerija (Meni 102)
+                new Meal { Id = 105, Name = "Kapricoza", Description = "Sunka, sir, pecurke", Price = 900, MenuId = 102, Menu = null! },
+                new Meal { Id = 106, Name = "Margarita", Description = "Pelat, sir, masline", Price = 750, MenuId = 102, Menu = null! },
+                new Meal { Id = 107, Name = "Madjarica", Description = "Kulen, ljuta paprika", Price = 950, MenuId = 102, Menu = null! },
+                new Meal { Id = 108, Name = "Pica Hleb", Description = "Beli luk, maslinovo ulje", Price = 250, MenuId = 102, Menu = null! },
+
+                // Jela za Markova Kafana (Meni 103)
+                new Meal { Id = 109, Name = "Karadjordjeva", Description = "Pohovano meso, kajmak", Price = 1200, MenuId = 103, Menu = null! },
+                new Meal { Id = 110, Name = "Svadbarski Kupus", Description = "Kupus, suvo meso", Price = 850, MenuId = 103, Menu = null! },
+                new Meal { Id = 111, Name = "Pohovani Kackavalj", Description = "Uz tartar sos", Price = 600, MenuId = 103, Menu = null! },
+                new Meal { Id = 112, Name = "Domaca Pogaca", Description = "Topla pecena", Price = 200, MenuId = 103, Menu = null! },
+
+                // Jela za Marko Grill (Meni 104)
+                new Meal { Id = 113, Name = "Batak na zaru", Description = "Otkoštani batak 300g", Price = 650, MenuId = 104, Menu = null! },
+                new Meal { Id = 114, Name = "Belo Meso", Description = "Piletina na zaru", Price = 600, MenuId = 104, Menu = null! },
+                new Meal { Id = 115, Name = "Kobasice", Description = "Domace kobasice 300g", Price = 750, MenuId = 104, Menu = null! },
+                new Meal { Id = 116, Name = "Pomfrit", Description = "Sveze przen", Price = 250, MenuId = 104, Menu = null! },
+
+                // Jela za Jovanov Restoran (Meni 105)
+                new Meal { Id = 117, Name = "Gulas", Description = "Govedji gulas", Price = 900, MenuId = 105, Menu = null! },
+                new Meal { Id = 118, Name = "Pire Krompir", Description = "Kao prilog", Price = 200, MenuId = 105, Menu = null! },
+                new Meal { Id = 119, Name = "Pohovana Piletina", Description = "U susamu", Price = 700, MenuId = 105, Menu = null! },
+                new Meal { Id = 120, Name = "Krempita", Description = "Domaci desert", Price = 300, MenuId = 105, Menu = null! },
+
+                // Jela za Pekara Jovan (Meni 106)
+                new Meal { Id = 121, Name = "Burek sa Mesom", Description = "250g", Price = 220, MenuId = 106, Menu = null! },
+                new Meal { Id = 122, Name = "Burek sa Sirom", Description = "250g", Price = 200, MenuId = 106, Menu = null! },
+                new Meal { Id = 123, Name = "Kroasan Cokolada", Description = "Mali kroasan", Price = 120, MenuId = 106, Menu = null! },
+                new Meal { Id = 124, Name = "Jogurt", Description = "Casa 0.25l", Price = 60, MenuId = 106, Menu = null! }
+            );
         }
     }
 }

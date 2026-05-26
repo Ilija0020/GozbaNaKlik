@@ -27,7 +27,7 @@ namespace gozba_na_klik_backend
 
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<RestaurantRepository>();
+            builder.Services.AddScoped<RestaurantsRepository>();
             builder.Services.AddScoped<RestaurantService>();
 
             builder.Services.AddCors(options =>
