@@ -1,5 +1,4 @@
 ﻿using gozba_na_klik_backend.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik_backend.Controllers
@@ -8,9 +7,9 @@ namespace gozba_na_klik_backend.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public UsersController(UserService userService)
+        public UsersController(IUserService userService)
         {
             _userService = userService;
         }
@@ -21,18 +20,7 @@ namespace gozba_na_klik_backend.Controllers
             try
             {
                 var users = await _userService.GetAllUsersAsync();
-
-                var result = users.Select(u => new
-                {
-                    id = u.Id,
-                    name = u.Name,
-                    surname = u.Surname,
-                    email = u.Email,
-                    username = u.Username,
-                    role = u.Role
-                });
-
-                return Ok(result);
+                return Ok(users);
             }
             catch (Exception)
             {
@@ -46,17 +34,7 @@ namespace gozba_na_klik_backend.Controllers
             try
             {
                 var owners = await _userService.GetAllOwnersAsync();
-
-                var result = owners.Select(u => new
-                {
-                    id = u.Id,
-                    name = u.Name,
-                    surname = u.Surname,
-                    username = u.Username,
-                    role = u.Role
-                });
-
-                return Ok(result);
+                return Ok(owners);
             }
             catch (Exception)
             {

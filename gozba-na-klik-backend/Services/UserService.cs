@@ -1,56 +1,78 @@
-﻿using gozba_na_klik_backend.Models;
+﻿using AutoMapper;
+using gozba_na_klik_backend.DTOs;
+using gozba_na_klik_backend.Models;
 using gozba_na_klik_backend.Models.Enums;
-using gozba_na_klik_backend.Repositories;
 
 namespace gozba_na_klik_backend.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public UserService(UserRepository userRepository)
+        public UserService(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
-        public async Task<string> RegisterUserAsync(User newUser, bool isFromAdmin = false)
+        private async Task<string> ValidateNewUserAsync(string username, string email)
         {
-            User existingUser = await _userRepository.GetUserByUsernameAsync(newUser.Username); 
+            User? existingUser = await _userRepository.GetUserByUsernameAsync(username);
             if (existingUser != null)
-            {
                 return "Korisnicko ime je vec zauzeto.";
-            }
-            User existingEmail = await _userRepository.GetUserByEmailAsync(newUser.Email);
+
+            User? existingEmail = await _userRepository.GetUserByEmailAsync(email);
             if (existingEmail != null)
-            {
                 return "Email adresa je vec registrovana.";
-            }
-            if (!isFromAdmin)
-            {
-                newUser.Role = Role.Customer;
-            }
+
+            return "";
+        }
+
+        public async Task<string> RegisterUserAsync(UserRegisterDTO newUserDto)
+        {
+            string validationError = await ValidateNewUserAsync(newUserDto.Username, newUserDto.Email);
+            if (validationError != "")
+                return validationError;
+
+            User newUser = _mapper.Map<User>(newUserDto);
+            newUser.Role = Role.Customer;
+
             await _userRepository.AddUserAsync(newUser);
             return "";
         }
 
-        public async Task<User?> AuthenticateUserAsync(string username, string password)
+        public async Task<string> RegisterUserByAdminAsync(UserAdminRegisterDTO newUserDto)
+        {
+            string validationError = await ValidateNewUserAsync(newUserDto.Username, newUserDto.Email);
+            if (validationError != "")
+                return validationError;
+
+            User newUser = _mapper.Map<User>(newUserDto);
+
+            await _userRepository.AddUserAsync(newUser);
+            return "";
+        }
+
+        public async Task<UserDTO?> AuthenticateUserAsync(string username, string password)
         {
             User? user = await _userRepository.GetUserByUsernameAsync(username);
             if (user == null || user.Password != password)
-            {
                 return null;
-            }
-            return user;
+
+            return _mapper.Map<UserDTO>(user);
         }
 
-        public async Task<List<User>> GetAllUsersAsync()
-            {
-                return await _userRepository.GetAllUsersAsync();
-        }
-
-        public async Task<List<User>> GetAllOwnersAsync()
+        public async Task<List<UserDTO>> GetAllUsersAsync()
         {
-            return await _userRepository.GetOwners();
+            List<User> users = await _userRepository.GetAllUsersAsync();
+            return _mapper.Map<List<UserDTO>>(users);
+        }
+
+        public async Task<List<UserDTO>> GetAllOwnersAsync()
+        {
+            List<User> owners = await _userRepository.GetOwners();
+            return _mapper.Map<List<UserDTO>>(owners);
         }
     }
 }

@@ -1,8 +1,11 @@
-
+using AutoMapper;
 using gozba_na_klik_backend.Data;
+using gozba_na_klik_backend.Mapping;
+using gozba_na_klik_backend.Models;
 using gozba_na_klik_backend.Repositories;
 using gozba_na_klik_backend.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace gozba_na_klik_backend
@@ -13,23 +16,25 @@ namespace gozba_na_klik_backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            // Ovo sam nasao na netu kako bi nam enum za role stigao na frontu u tekstu(Customer, Admin) umesto brojeva
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
             });
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddScoped<UserRepository>();
-            builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<RestaurantsRepository>();
-            builder.Services.AddScoped<RestaurantService>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRestaurantsRepository, RestaurantsRepository>();
 
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+
+            builder.Services.AddAutoMapper(cfg => {
+                cfg.AddProfile<MappingProfile>();
+            });
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
@@ -45,7 +50,6 @@ namespace gozba_na_klik_backend
 
             app.UseCors("AllowAll");
 
-            // Configure the HTTP request pipeline.
             app.UseStaticFiles();
 
             if (app.Environment.IsDevelopment())
@@ -55,7 +59,6 @@ namespace gozba_na_klik_backend
             }
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
