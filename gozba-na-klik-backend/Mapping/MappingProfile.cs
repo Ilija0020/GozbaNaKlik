@@ -1,0 +1,24 @@
+﻿using AutoMapper;
+using gozba_na_klik_backend.DTOs;
+using gozba_na_klik_backend.Models;
+
+namespace gozba_na_klik_backend.Mapping
+{
+    public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+            CreateMap<User, UserDTO>();
+            CreateMap<UserRegisterDTO, User>();
+            CreateMap<UserAdminRegisterDTO, User>();
+
+            CreateMap<Restaurant, RestaurantDTO>();
+            CreateMap<RestaurantCreateDTO, Restaurant>();
+            CreateMap<RestaurantUpdateDTO, Restaurant>();
+            CreateMap<RestaurantOwnerUpdateDTO, Restaurant>();
+
+            CreateMap<RestaurantWorkingHours, RestaurantWorkingHoursDTO>().ReverseMap();
+            CreateMap<NonWorkingDay, NonWorkingDayDTO>().ReverseMap();
+        }
+    }
+}
