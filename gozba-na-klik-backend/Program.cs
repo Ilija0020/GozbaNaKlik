@@ -46,6 +46,8 @@ namespace gozba_na_klik_backend
             app.UseCors("AllowAll");
 
             // Configure the HTTP request pipeline.
+            app.UseStaticFiles();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
