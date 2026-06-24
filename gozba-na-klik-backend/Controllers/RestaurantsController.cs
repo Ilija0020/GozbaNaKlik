@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using gozba_na_klik_backend.Models;
+using gozba_na_klik_backend.DTOs;
 using gozba_na_klik_backend.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik_backend.Controllers
 {
@@ -22,16 +21,7 @@ namespace gozba_na_klik_backend.Controllers
             try
             {
                 var restaurants = await _restaurantService.GetAllRestaurantsAsync();
-
-                var result = restaurants.Select(r => new
-                {
-                    id = r.Id,
-                    name = r.Name,
-                    address = r.Address,
-                    ownerId = r.OwnerId
-                });
-
-                return Ok(result);
+                return Ok(restaurants);
             }
             catch (Exception)
             {
@@ -40,11 +30,11 @@ namespace gozba_na_klik_backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRestaurantAsync([FromBody] Restaurant restaurant)
+        public async Task<IActionResult> CreateRestaurantAsync([FromBody] RestaurantCreateDTO restaurantDto)
         {
             try
             {
-                string error = await _restaurantService.CreateRestaurantAsync(restaurant);
+                string error = await _restaurantService.CreateRestaurantAsync(restaurantDto);
                 if (!string.IsNullOrEmpty(error))
                     return BadRequest(error);
 
@@ -57,11 +47,11 @@ namespace gozba_na_klik_backend.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRestaurantAsync(int id, [FromBody] Restaurant restaurant)
+        public async Task<IActionResult> UpdateRestaurantAsync(int id, [FromBody] RestaurantUpdateDTO restaurantDto)
         {
             try
             {
-                string error = await _restaurantService.UpdateRestaurantAsync(id, restaurant);
+                string error = await _restaurantService.UpdateRestaurantAsync(id, restaurantDto);
                 if (!string.IsNullOrEmpty(error))
                     return BadRequest(error);
 
@@ -90,7 +80,6 @@ namespace gozba_na_klik_backend.Controllers
             }
         }
 
-        //Owner specific
         [HttpGet("owners/{ownerId}")]
         public async Task<IActionResult> GetRestaurantsByOwnerId(int ownerId)
         {
@@ -106,11 +95,11 @@ namespace gozba_na_klik_backend.Controllers
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}")]
-        public async Task<IActionResult> UpdateRestaurantByOwnerAsync(int id, int ownerId, [FromBody] Restaurant restaurant)
+        public async Task<IActionResult> UpdateRestaurantByOwnerAsync(int id, int ownerId, [FromBody] RestaurantOwnerUpdateDTO restaurantDto)
         {
             try
             {
-                string error = await _restaurantService.UpdateRestaurantByOwnerAsync(id, ownerId, restaurant);
+                string error = await _restaurantService.UpdateRestaurantByOwnerAsync(id, ownerId, restaurantDto);
                 if (error != "")
                     return BadRequest(error);
 
@@ -140,11 +129,11 @@ namespace gozba_na_klik_backend.Controllers
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}/working-hours")]
-        public async Task<IActionResult> UpdateWorkingHoursAsync(int id, int ownerId, [FromBody] List<RestaurantWorkingHours> newHours)
+        public async Task<IActionResult> UpdateWorkingHoursAsync(int id, int ownerId, [FromBody] List<RestaurantWorkingHoursDTO> newHoursDto)
         {
             try
             {
-                string error = await _restaurantService.UpdateWorkingHoursAsync(id, ownerId, newHours);
+                string error = await _restaurantService.UpdateWorkingHoursAsync(id, ownerId, newHoursDto);
                 if (error != "")
                     return BadRequest(error);
                 return Ok("Radno vreme je uspesno izmenjeno.");
@@ -156,11 +145,11 @@ namespace gozba_na_klik_backend.Controllers
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}/non-working-days")]
-        public async Task<IActionResult> UpdateNonWorkingDaysAsync(int id, int ownerId, [FromBody] List<NonWorkingDay> newNonWorkingDays)
+        public async Task<IActionResult> UpdateNonWorkingDaysAsync(int id, int ownerId, [FromBody] List<NonWorkingDayDTO> newNonWorkingDaysDto)
         {
             try
             {
-                string error = await _restaurantService.UpdateNonWorkingDaysAsync(id, ownerId, newNonWorkingDays);
+                string error = await _restaurantService.UpdateNonWorkingDaysAsync(id, ownerId, newNonWorkingDaysDto);
                 if (error != "")
                     return BadRequest(error);
                 return Ok("Neradni dani su uspesno izmenjeni.");

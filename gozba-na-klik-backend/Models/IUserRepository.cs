@@ -1,6 +1,4 @@
-﻿using gozba_na_klik_backend.Models;
-
-namespace gozba_na_klik_backend.Repositories
+﻿namespace gozba_na_klik_backend.Models
 {
     public interface IUserRepository
     {
