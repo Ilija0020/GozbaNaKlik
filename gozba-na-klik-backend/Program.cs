@@ -25,10 +25,10 @@ namespace gozba_na_klik_backend
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddScoped<UserRepository>();
-            builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<RestaurantsRepository>();
-            builder.Services.AddScoped<RestaurantService>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IRestaurantsRepository, RestaurantsRepository>();
+            builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 
             builder.Services.AddCors(options =>
             {
