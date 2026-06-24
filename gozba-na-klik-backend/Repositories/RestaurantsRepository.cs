@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace gozba_na_klik_backend.Repositories
 {
-    public class RestaurantsRepository
+    public class RestaurantsRepository : IRestaurantsRepository
     {
         private readonly AppDbContext _context;
 

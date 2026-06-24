@@ -3,11 +3,11 @@ using gozba_na_klik_backend.Repositories;
 
 namespace gozba_na_klik_backend.Services
 {
-    public class RestaurantService
+    public class RestaurantService : IRestaurantService
     {
-        private readonly RestaurantsRepository _restaurantRepository;
+        private readonly IRestaurantsRepository _restaurantRepository;
 
-        public RestaurantService(RestaurantsRepository restaurantRepository)
+        public RestaurantService(IRestaurantsRepository restaurantRepository)
         {
             _restaurantRepository = restaurantRepository;
         }

@@ -9,9 +9,9 @@ namespace gozba_na_klik_backend.Controllers
     [ApiController]
     public class RestaurantsController : ControllerBase
     {
-        private readonly RestaurantService _restaurantService;
+        private readonly IRestaurantService _restaurantService;
 
-        public RestaurantsController(RestaurantService restaurantService)
+        public RestaurantsController(IRestaurantService restaurantService)
         {
             _restaurantService = restaurantService;
         }

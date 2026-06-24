@@ -5,7 +5,7 @@ using gozba_na_klik_backend.Models.Enums;
 
 namespace gozba_na_klik_backend.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _context;
 
