@@ -50,6 +50,8 @@ namespace gozba_na_klik_backend
 
             app.UseCors("AllowAll");
 
+            app.UseStaticFiles();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
