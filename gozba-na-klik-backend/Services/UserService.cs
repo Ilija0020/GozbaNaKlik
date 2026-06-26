@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using gozba_na_klik_backend.DTOs;
+using gozba_na_klik_backend.Exceptions;
 using gozba_na_klik_backend.Models;
 using gozba_na_klik_backend.Models.Enums;
 
@@ -9,57 +10,54 @@ namespace gozba_na_klik_backend.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
-        private async Task<string> ValidateNewUserAsync(string username, string email)
+        private async Task ValidateNewUserAsync(string username, string email)
         {
             User? existingUser = await _userRepository.GetUserByUsernameAsync(username);
             if (existingUser != null)
-                return "Korisnicko ime je vec zauzeto.";
+                throw new BadRequestException("Korisnicko ime je vec zauzeto.");
 
             User? existingEmail = await _userRepository.GetUserByEmailAsync(email);
             if (existingEmail != null)
-                return "Email adresa je vec registrovana.";
-
-            return "";
+                throw new BadRequestException("Email adresa je vec registrovana.");
         }
 
-        public async Task<string> RegisterUserAsync(UserRegisterDTO newUserDto)
+        public async Task RegisterUserAsync(UserRegisterDTO newUserDto)
         {
-            string validationError = await ValidateNewUserAsync(newUserDto.Username, newUserDto.Email);
-            if (validationError != "")
-                return validationError;
+            await ValidateNewUserAsync(newUserDto.Username, newUserDto.Email);
 
             User newUser = _mapper.Map<User>(newUserDto);
             newUser.Role = Role.Customer;
 
             await _userRepository.AddUserAsync(newUser);
-            return "";
+            _logger.LogInformation("Korisnik {Username} se registrovao.", newUser.Username);
         }
 
-        public async Task<string> RegisterUserByAdminAsync(UserAdminRegisterDTO newUserDto)
+        public async Task RegisterUserByAdminAsync(UserAdminRegisterDTO newUserDto)
         {
-            string validationError = await ValidateNewUserAsync(newUserDto.Username, newUserDto.Email);
-            if (validationError != "")
-                return validationError;
+            await ValidateNewUserAsync(newUserDto.Username, newUserDto.Email);
 
             User newUser = _mapper.Map<User>(newUserDto);
 
             await _userRepository.AddUserAsync(newUser);
-            return "";
+            _logger.LogInformation("Administrator je registrovao korisnika {Username} sa ulogom {Role}.", newUser.Username, newUser.Role);
         }
 
-        public async Task<UserDTO?> AuthenticateUserAsync(string username, string password)
+        public async Task<UserDTO> AuthenticateUserAsync(string username, string password)
         {
             User? user = await _userRepository.GetUserByUsernameAsync(username);
             if (user == null || user.Password != password)
-                return null;
+                throw new BadRequestException("Neispravno korisnicko ime ili lozinka.");
 
+            _logger.LogInformation("Korisnik {Username} se prijavio.", username);
             return _mapper.Map<UserDTO>(user);
         }
 

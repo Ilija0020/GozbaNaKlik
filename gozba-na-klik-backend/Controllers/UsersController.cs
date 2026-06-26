@@ -17,29 +17,15 @@ namespace gozba_na_klik_backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync()
         {
-            try
-            {
-                var users = await _userService.GetAllUsersAsync();
-                return Ok(users);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
         }
 
         [HttpGet("owners")]
         public async Task<IActionResult> GetAllOwnersAsync()
         {
-            try
-            {
-                var owners = await _userService.GetAllOwnersAsync();
-                return Ok(owners);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            var owners = await _userService.GetAllOwnersAsync();
+            return Ok(owners);
         }
     }
 }
