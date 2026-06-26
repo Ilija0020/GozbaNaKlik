@@ -138,10 +138,10 @@ namespace gozba_na_klik_backend.Services
                 if (hours.StartTime >= hours.EndTime)
                     throw new BadRequestException($"Nelogicno radno vreme za dan {hours.Day}. Kraj mora biti posle pocetka.");
                 if (!hours.EndsNextDay && hours.StartTime >= hours.EndTime)
-                    return $"Nelogicno radno vreme za dan {hours.Day}. Kraj mora biti posle pocetka.";
+                    throw new BadRequestException($"Nelogicno radno vreme za dan {hours.Day}. Kraj mora biti posle pocetka.");
 
                 if (hours.EndsNextDay && hours.StartTime <= hours.EndTime)
-                    return $"Nelogicno radno vreme za dan {hours.Day}. Ako se radno vreme zavrsava sutradan, kraj mora biti pre pocetka.";
+                    throw new BadRequestException($"Nelogicno radno vreme za dan {hours.Day}. Ako se radno vreme zavrsava sutradan, kraj mora biti pre pocetka.");
             }
 
             var duplicateDays = newHoursDto.GroupBy(h => h.Day).Where(g => g.Count() > 1).Any();
