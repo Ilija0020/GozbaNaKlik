@@ -18,146 +18,64 @@ namespace gozba_na_klik_backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllRestaurantsAsync()
         {
-            try
-            {
-                var restaurants = await _restaurantService.GetAllRestaurantsAsync();
-                return Ok(restaurants);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            var restaurants = await _restaurantService.GetAllRestaurantsAsync();
+            return Ok(restaurants);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateRestaurantAsync([FromBody] RestaurantCreateDTO restaurantDto)
         {
-            try
-            {
-                string error = await _restaurantService.CreateRestaurantAsync(restaurantDto);
-                if (!string.IsNullOrEmpty(error))
-                    return BadRequest(error);
-
-                return Ok("Restoran je uspesno kreiran.");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            await _restaurantService.CreateRestaurantAsync(restaurantDto);
+            return Ok("Restoran je uspesno kreiran.");
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRestaurantAsync(int id, [FromBody] RestaurantUpdateDTO restaurantDto)
         {
-            try
-            {
-                string error = await _restaurantService.UpdateRestaurantAsync(id, restaurantDto);
-                if (!string.IsNullOrEmpty(error))
-                    return BadRequest(error);
-
-                return Ok("Restoran je uspesno izmenjen.");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            await _restaurantService.UpdateRestaurantAsync(id, restaurantDto);
+            return Ok("Restoran je uspesno izmenjen.");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRestaurantAsync(int id)
         {
-            try
-            {
-                string error = await _restaurantService.DeleteRestaurantAsync(id);
-                if (!string.IsNullOrEmpty(error))
-                    return BadRequest(error);
-
-                return Ok("Restoran je uspesno obrisan.");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            await _restaurantService.DeleteRestaurantAsync(id);
+            return Ok("Restoran je uspesno obrisan.");
         }
 
         [HttpGet("owners/{ownerId}")]
         public async Task<IActionResult> GetRestaurantsByOwnerId(int ownerId)
         {
-            try
-            {
-                var restaurants = await _restaurantService.GetRestaurantsByOwnerIdAsync(ownerId);
-                return Ok(restaurants);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            var restaurants = await _restaurantService.GetRestaurantsByOwnerIdAsync(ownerId);
+            return Ok(restaurants);
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}")]
         public async Task<IActionResult> UpdateRestaurantByOwnerAsync(int id, int ownerId, [FromBody] RestaurantOwnerUpdateDTO restaurantDto)
         {
-            try
-            {
-                string error = await _restaurantService.UpdateRestaurantByOwnerAsync(id, ownerId, restaurantDto);
-                if (error != "")
-                    return BadRequest(error);
-
-                return Ok("Restoran je uspesno izmenjen.");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            await _restaurantService.UpdateRestaurantByOwnerAsync(id, ownerId, restaurantDto);
+            return Ok("Restoran je uspesno izmenjen.");
         }
 
         [HttpPost("owners/{ownerId}/restaurants/{id}/upload-photo")]
         public async Task<IActionResult> UploadImageAsync(int id, int ownerId, IFormFile photo)
         {
-            try
-            {
-                string error = await _restaurantService.UploadRestaurantImageAsync(id, ownerId, photo);
-                if (error != "")
-                    return BadRequest(error);
-
-                return Ok("Slika je uspesno uploadovana.");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            await _restaurantService.UploadRestaurantImageAsync(id, ownerId, photo);
+            return Ok("Slika je uspesno uploadovana.");
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}/working-hours")]
         public async Task<IActionResult> UpdateWorkingHoursAsync(int id, int ownerId, [FromBody] List<RestaurantWorkingHoursDTO> newHoursDto)
         {
-            try
-            {
-                string error = await _restaurantService.UpdateWorkingHoursAsync(id, ownerId, newHoursDto);
-                if (error != "")
-                    return BadRequest(error);
-                return Ok("Radno vreme je uspesno izmenjeno.");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            await _restaurantService.UpdateWorkingHoursAsync(id, ownerId, newHoursDto);
+            return Ok("Radno vreme je uspesno izmenjeno.");
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}/non-working-days")]
         public async Task<IActionResult> UpdateNonWorkingDaysAsync(int id, int ownerId, [FromBody] List<NonWorkingDayDTO> newNonWorkingDaysDto)
         {
-            try
-            {
-                string error = await _restaurantService.UpdateNonWorkingDaysAsync(id, ownerId, newNonWorkingDaysDto);
-                if (error != "")
-                    return BadRequest(error);
-                return Ok("Neradni dani su uspesno izmenjeni.");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Doslo je do greske na serveru.");
-            }
+            await _restaurantService.UpdateNonWorkingDaysAsync(id, ownerId, newNonWorkingDaysDto);
+            return Ok("Neradni dani su uspesno izmenjeni.");
         }
     }
 }
