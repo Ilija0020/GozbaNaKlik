@@ -6,6 +6,7 @@
         public DayOfWeek Day { get; set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
+        public bool EndsNextDay { get; set; }
         public int? RestaurantId { get; set; }
     }
 }
