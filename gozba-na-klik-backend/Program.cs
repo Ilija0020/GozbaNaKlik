@@ -1,12 +1,11 @@
-using AutoMapper;
 using gozba_na_klik_backend.Data;
 using gozba_na_klik_backend.Mapping;
+using gozba_na_klik_backend.Middleware;
 using gozba_na_klik_backend.Models;
 using gozba_na_klik_backend.Repositories;
 using gozba_na_klik_backend.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+using Serilog;
 
 namespace gozba_na_klik_backend
 {
@@ -15,6 +14,13 @@ namespace gozba_na_klik_backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                .CreateLogger();
+
+            builder.Host.UseSerilog(logger);
 
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
@@ -32,9 +38,13 @@ namespace gozba_na_klik_backend
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 
-            builder.Services.AddAutoMapper(cfg => {
+            builder.Services.AddAutoMapper(cfg =>
+            {
                 cfg.AddProfile<MappingProfile>();
             });
+
+            builder.Services.AddTransient<ExceptionHandlingMiddleware>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
@@ -48,9 +58,10 @@ namespace gozba_na_klik_backend
 
             var app = builder.Build();
 
-            app.UseCors("AllowAll");
+            app.UseSerilogRequestLogging();
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-            app.UseStaticFiles();
+            app.UseCors("AllowAll");
 
             if (app.Environment.IsDevelopment())
             {

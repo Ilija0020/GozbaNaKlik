@@ -1,5 +1,6 @@
 using AutoMapper;
 using gozba_na_klik_backend.DTOs;
+using gozba_na_klik_backend.Exceptions;
 using gozba_na_klik_backend.Models;
 using Microsoft.AspNetCore.Http;
 
@@ -9,11 +10,13 @@ namespace gozba_na_klik_backend.Services
     {
         private readonly IRestaurantsRepository _restaurantRepository;
         private readonly IMapper _mapper;
+        private readonly ILogger<RestaurantService> _logger;
 
-        public RestaurantService(IRestaurantsRepository restaurantRepository, IMapper mapper)
+        public RestaurantService(IRestaurantsRepository restaurantRepository, IMapper mapper, ILogger<RestaurantService> logger)
         {
             _restaurantRepository = restaurantRepository;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<List<RestaurantDTO>> GetAllRestaurantsAsync()
@@ -22,35 +25,35 @@ namespace gozba_na_klik_backend.Services
             return _mapper.Map<List<RestaurantDTO>>(restaurants);
         }
 
-        public async Task<string> CreateRestaurantAsync(RestaurantCreateDTO restaurantDto)
+        public async Task CreateRestaurantAsync(RestaurantCreateDTO restaurantDto)
         {
             Restaurant restaurant = _mapper.Map<Restaurant>(restaurantDto);
             await _restaurantRepository.AddRestaurantAsync(restaurant);
-            return "";
+            _logger.LogInformation("Restoran {RestaurantName} je kreiran (OwnerId={OwnerId}).", restaurant.Name, restaurant.OwnerId);
         }
 
-        public async Task<string> UpdateRestaurantAsync(int id, RestaurantUpdateDTO restaurantDto)
+        public async Task UpdateRestaurantAsync(int id, RestaurantUpdateDTO restaurantDto)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
-                return "Restoran nije pronadjen.";
+                throw new NotFoundException("Restoran nije pronadjen.");
 
             restaurant.Name = restaurantDto.Name;
             restaurant.Address = restaurantDto.Address;
             restaurant.OwnerId = restaurantDto.OwnerId;
 
             await _restaurantRepository.UpdateRestaurantAsync(restaurant);
-            return "";
+            _logger.LogInformation("Restoran {RestaurantId} je izmenjen od strane administratora.", id);
         }
 
-        public async Task<string> DeleteRestaurantAsync(int id)
+        public async Task DeleteRestaurantAsync(int id)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
-                return "Restoran nije pronadjen.";
+                throw new NotFoundException("Restoran nije pronadjen.");
 
             await _restaurantRepository.DeleteRestaurantAsync(restaurant);
-            return "";
+            _logger.LogInformation("Restoran {RestaurantId} je obrisan.", id);
         }
 
         public async Task<List<RestaurantDTO>> GetRestaurantsByOwnerIdAsync(int ownerId)
@@ -59,43 +62,43 @@ namespace gozba_na_klik_backend.Services
             return _mapper.Map<List<RestaurantDTO>>(restaurants);
         }
 
-        public async Task<string> UpdateRestaurantByOwnerAsync(int id, int ownerId, RestaurantOwnerUpdateDTO restaurantDto)
+        public async Task UpdateRestaurantByOwnerAsync(int id, int ownerId, RestaurantOwnerUpdateDTO restaurantDto)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
-                return "Restoran nije pronadjen.";
+                throw new NotFoundException("Restoran nije pronadjen.");
 
             if (restaurant.OwnerId != ownerId)
-                return "Nemate dozvolu za izmenu ovog restorana.";
+                throw new ForbiddenException("Nemate dozvolu za izmenu ovog restorana.");
 
             restaurant.Name = restaurantDto.Name;
             restaurant.Address = restaurantDto.Address;
             restaurant.Description = restaurantDto.Description;
 
             await _restaurantRepository.UpdateRestaurantAsync(restaurant);
-            return "";
+            _logger.LogInformation("Vlasnik {OwnerId} je izmenio restoran {RestaurantId}.", ownerId, id);
         }
 
-        public async Task<string> UploadRestaurantImageAsync(int id, int ownerId, IFormFile image)
+        public async Task UploadRestaurantImageAsync(int id, int ownerId, IFormFile image)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
-                return "Restoran nije pronadjen.";
+                throw new NotFoundException("Restoran nije pronadjen.");
 
             if (restaurant.OwnerId != ownerId)
-                return "Nemate dozvolu za izmenu ovog restorana.";
+                throw new ForbiddenException("Nemate dozvolu za izmenu ovog restorana.");
 
             if (image == null || image.Length == 0)
-                return "You must provide an image route.";
+                throw new BadRequestException("You must provide an image route.");
 
             long maxFileSize = 5 * 1024 * 1024;
             if (image.Length > maxFileSize)
-                return "Fajl je prevelik. Maksimalna dozvoljena velicina je 5 MB.";
+                throw new BadRequestException("Fajl je prevelik. Maksimalna dozvoljena velicina je 5 MB.");
 
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
             var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
             if (!allowedExtensions.Contains(extension))
-                return "Dozvoljeni su samo .jpg, .jpeg, .png i .webp formati slika.";
+                throw new BadRequestException("Dozvoljeni su samo .jpg, .jpeg, .png i .webp formati slika.");
 
             if (!string.IsNullOrEmpty(restaurant.Photo))
             {
@@ -119,47 +122,47 @@ namespace gozba_na_klik_backend.Services
             restaurant.Photo = "/images/" + uniqueFileName;
 
             await _restaurantRepository.UpdateRestaurantAsync(restaurant);
-            return "";
+            _logger.LogInformation("Slika restorana {RestaurantId} je azurirana od strane vlasnika {OwnerId}.", id, ownerId);
         }
 
-        public async Task<string> UpdateWorkingHoursAsync(int id, int ownerId, List<RestaurantWorkingHoursDTO> newHoursDto)
+        public async Task UpdateWorkingHoursAsync(int id, int ownerId, List<RestaurantWorkingHoursDTO> newHoursDto)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
-                return "Restoran nije pronadjen.";
+                throw new NotFoundException("Restoran nije pronadjen.");
             if (restaurant.OwnerId != ownerId)
-                return "Nemate dozvolu za izmenu ovog restorana.";
+                throw new ForbiddenException("Nemate dozvolu za izmenu ovog restorana.");
 
             foreach (var hours in newHoursDto)
             {
                 if (hours.StartTime >= hours.EndTime)
-                    return $"Nelogicno radno vreme za dan {hours.Day}. Kraj mora biti posle pocetka.";
+                    throw new BadRequestException($"Nelogicno radno vreme za dan {hours.Day}. Kraj mora biti posle pocetka.");
             }
 
             var duplicateDays = newHoursDto.GroupBy(h => h.Day).Where(g => g.Count() > 1).Any();
             if (duplicateDays)
-                return "Ne mozete uneti isti dan vise puta.";
+                throw new BadRequestException("Ne mozete uneti isti dan vise puta.");
 
             List<RestaurantWorkingHours> newHours = _mapper.Map<List<RestaurantWorkingHours>>(newHoursDto);
 
             await _restaurantRepository.ReplaceWorkingHoursAsync(id, newHours);
-            return "";
+            _logger.LogInformation("Radno vreme restorana {RestaurantId} je azurirano od strane vlasnika {OwnerId}.", id, ownerId);
         }
 
-        public async Task<string> UpdateNonWorkingDaysAsync(int id, int ownerId, List<NonWorkingDayDTO> newNonWorkingDaysDto)
+        public async Task UpdateNonWorkingDaysAsync(int id, int ownerId, List<NonWorkingDayDTO> newNonWorkingDaysDto)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
-                return "Restoran nije pronadjen.";
+                throw new NotFoundException("Restoran nije pronadjen.");
             if (restaurant.OwnerId != ownerId)
-                return "Nemate dozvolu za izmenu ovog restorana.";
+                throw new ForbiddenException("Nemate dozvolu za izmenu ovog restorana.");
 
             var today = DateOnly.FromDateTime(DateTime.Now);
             List<NonWorkingDay> newNonWorkingDays = _mapper.Map<List<NonWorkingDay>>(newNonWorkingDaysDto);
             var validNonWorkingDays = newNonWorkingDays.Where(d => d.Date >= today).ToList();
 
             await _restaurantRepository.ReplaceNonWorkingDaysAsync(id, validNonWorkingDays);
-            return "";
+            _logger.LogInformation("Neradni dani restorana {RestaurantId} su azurirani od strane vlasnika {OwnerId}.", id, ownerId);
         }
     }
 }
