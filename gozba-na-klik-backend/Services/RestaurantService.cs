@@ -135,8 +135,6 @@ namespace gozba_na_klik_backend.Services
 
             foreach (var hours in newHoursDto)
             {
-                if (hours.StartTime >= hours.EndTime)
-                    throw new BadRequestException($"Nelogicno radno vreme za dan {hours.Day}. Kraj mora biti posle pocetka.");
                 if (!hours.EndsNextDay && hours.StartTime >= hours.EndTime)
                     throw new BadRequestException($"Nelogicno radno vreme za dan {hours.Day}. Kraj mora biti posle pocetka.");
 
