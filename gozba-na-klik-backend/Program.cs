@@ -69,6 +69,8 @@ namespace gozba_na_klik_backend
                 app.UseSwaggerUI();
             }
 
+            app.UseStaticFiles();
+
             app.UseAuthorization();
 
             app.MapControllers();
