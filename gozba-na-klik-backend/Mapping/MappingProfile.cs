@@ -19,6 +19,9 @@ namespace gozba_na_klik_backend.Mapping
 
             CreateMap<RestaurantWorkingHours, RestaurantWorkingHoursDTO>().ReverseMap();
             CreateMap<NonWorkingDay, NonWorkingDayDTO>().ReverseMap();
+
+            CreateMap<Meal, MealDTO>();
+            CreateMap<Allergen, AllergenDTO>();
         }
     }
 }

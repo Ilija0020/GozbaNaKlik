@@ -2,6 +2,7 @@ using gozba_na_klik_backend.Data;
 using gozba_na_klik_backend.Mapping;
 using gozba_na_klik_backend.Middleware;
 using gozba_na_klik_backend.Models;
+using gozba_na_klik_backend.Models.IRepositories;
 using gozba_na_klik_backend.Repositories;
 using gozba_na_klik_backend.Services;
 using Microsoft.EntityFrameworkCore;
@@ -34,9 +35,11 @@ namespace gozba_na_klik_backend
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IRestaurantsRepository, RestaurantsRepository>();
+            builder.Services.AddScoped<IMealRepository, MealRepository>();
 
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IRestaurantService, RestaurantService>();
+            builder.Services.AddScoped<IMealService, MealService>();
 
             builder.Services.AddAutoMapper(cfg =>
             {
