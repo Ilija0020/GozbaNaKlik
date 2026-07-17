@@ -1,5 +1,5 @@
-﻿using gozba_na_klik_backend.DTOs;
-using gozba_na_klik_backend.Services;
+using gozba_na_klik_backend.Services.DTOs;
+using gozba_na_klik_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik_backend.Controllers
