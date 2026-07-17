@@ -28,8 +28,14 @@ namespace gozba_na_klik_backend.Services
         public async Task CreateRestaurantAsync(RestaurantCreateDTO restaurantDto)
         {
             Restaurant restaurant = _mapper.Map<Restaurant>(restaurantDto);
+
+            restaurant.Menu = new Menu
+            {
+                Restaurant = restaurant,
+                Meals = new List<Meal>()
+            };
             await _restaurantRepository.AddRestaurantAsync(restaurant);
-            _logger.LogInformation("Restoran {RestaurantName} je kreiran (OwnerId={OwnerId}).", restaurant.Name, restaurant.OwnerId);
+            _logger.LogInformation("Restoran {RestaurantName} je kreiran sa praznim jelovnikom (OwnerId={OwnerId}).", restaurant.Name, restaurant.OwnerId);
         }
 
         public async Task UpdateRestaurantAsync(int id, RestaurantUpdateDTO restaurantDto)
