@@ -1,10 +1,10 @@
-using gozba_na_klik_backend.Data;
-using gozba_na_klik_backend.Mapping;
-using gozba_na_klik_backend.Middleware;
-using gozba_na_klik_backend.Models;
-using gozba_na_klik_backend.Models.IRepositories;
-using gozba_na_klik_backend.Repositories;
+using gozba_na_klik_backend.Services.Interfaces;
+using gozba_na_klik_backend.Services.Mapping;
 using gozba_na_klik_backend.Services;
+using gozba_na_klik_backend.Domain.Repositories;
+using gozba_na_klik_backend.Infrastructure.PostgreSql;
+using gozba_na_klik_backend.Infrastructure.PostgreSql.Repositories;
+using gozba_na_klik_backend.Controllers.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 

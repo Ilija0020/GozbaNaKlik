@@ -1,8 +1,9 @@
-﻿using AutoMapper;
-using gozba_na_klik_backend.DTOs;
-using gozba_na_klik_backend.Exceptions;
-using gozba_na_klik_backend.Models;
-using gozba_na_klik_backend.Models.IRepositories;
+using AutoMapper;
+using gozba_na_klik_backend.Services.Interfaces;
+using gozba_na_klik_backend.Services.DTOs;
+using gozba_na_klik_backend.Services.Exceptions;
+using gozba_na_klik_backend.Domain.Entities;
+using gozba_na_klik_backend.Domain.Repositories;
 
 namespace gozba_na_klik_backend.Services
 {
