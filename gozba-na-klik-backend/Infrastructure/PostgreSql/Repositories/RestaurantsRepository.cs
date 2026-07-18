@@ -51,7 +51,7 @@ namespace gozba_na_klik_backend.Infrastructure.PostgreSql.Repositories
         }
 
         // Methods for working with restaurant by owner        
-        public async Task<List<Restaurant>> GetRestaurantsByOwnerIdAsync(int ownerId)
+        public async Task<List<Restaurant>> GetRestaurantsByOwnerIdAsync(string ownerId)
         {
             return await _context.Restaurants
                 .Where(r => r.OwnerId == ownerId && !r.IsDeleted)

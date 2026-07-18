@@ -1,3 +1,4 @@
+using gozba_na_klik_backend.Services.DTOs;
 using gozba_na_klik_backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,13 @@ namespace gozba_na_klik_backend.Controllers
         {
             var owners = await _userService.GetAllOwnersAsync();
             return Ok(owners);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterByAdmin([FromBody] UserAdminRegisterDTO newUserDto)
+        {
+            await _userService.RegisterUserByAdminAsync(newUserDto);
+            return Ok("Korisnik uspesno registrovan.");
         }
     }
 }

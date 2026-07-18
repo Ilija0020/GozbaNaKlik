@@ -1,4 +1,3 @@
-using gozba_na_klik_backend.Domain.Enums;
 
 namespace gozba_na_klik_backend.Services.DTOs
 {
@@ -9,6 +8,6 @@ namespace gozba_na_klik_backend.Services.DTOs
         public required string Email { get; set; }
         public required string Username { get; set; }
         public required string Password { get; set; }
-        public required Role Role { get; set; }
+        public required string Role { get; set; }
     }
 }

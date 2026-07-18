@@ -64,13 +64,13 @@ namespace gozba_na_klik_backend.Services
             _logger.LogInformation("Restoran {RestaurantId} je obrisan.", id);
         }
 
-        public async Task<List<RestaurantDTO>> GetRestaurantsByOwnerIdAsync(int ownerId)
+        public async Task<List<RestaurantDTO>> GetRestaurantsByOwnerIdAsync(string ownerId)
         {
             List<Restaurant> restaurants = await _restaurantRepository.GetRestaurantsByOwnerIdAsync(ownerId);
             return _mapper.Map<List<RestaurantDTO>>(restaurants);
         }
 
-        public async Task UpdateRestaurantByOwnerAsync(int id, int ownerId, RestaurantOwnerUpdateDTO restaurantDto)
+        public async Task UpdateRestaurantByOwnerAsync(int id, string ownerId, RestaurantOwnerUpdateDTO restaurantDto)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
@@ -87,7 +87,7 @@ namespace gozba_na_klik_backend.Services
             _logger.LogInformation("Vlasnik {OwnerId} je izmenio restoran {RestaurantId}.", ownerId, id);
         }
 
-        public async Task UploadRestaurantImageAsync(int id, int ownerId, IFormFile image)
+        public async Task UploadRestaurantImageAsync(int id, string ownerId, IFormFile image)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
@@ -133,7 +133,7 @@ namespace gozba_na_klik_backend.Services
             _logger.LogInformation("Slika restorana {RestaurantId} je azurirana od strane vlasnika {OwnerId}.", id, ownerId);
         }
 
-        public async Task UpdateWorkingHoursAsync(int id, int ownerId, List<RestaurantWorkingHoursDTO> newHoursDto)
+        public async Task UpdateWorkingHoursAsync(int id, string ownerId, List<RestaurantWorkingHoursDTO> newHoursDto)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)
@@ -160,7 +160,7 @@ namespace gozba_na_klik_backend.Services
             _logger.LogInformation("Radno vreme restorana {RestaurantId} je azurirano od strane vlasnika {OwnerId}.", id, ownerId);
         }
 
-        public async Task UpdateNonWorkingDaysAsync(int id, int ownerId, List<NonWorkingDayDTO> newNonWorkingDaysDto)
+        public async Task UpdateNonWorkingDaysAsync(int id, string ownerId, List<NonWorkingDayDTO> newNonWorkingDaysDto)
         {
             var restaurant = await _restaurantRepository.GetRestaurantByIdAsync(id);
             if (restaurant == null)

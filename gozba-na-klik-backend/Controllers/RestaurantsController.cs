@@ -44,35 +44,35 @@ namespace gozba_na_klik_backend.Controllers
         }
 
         [HttpGet("owners/{ownerId}")]
-        public async Task<IActionResult> GetRestaurantsByOwnerId(int ownerId)
+        public async Task<IActionResult> GetRestaurantsByOwnerId(string ownerId)
         {
             var restaurants = await _restaurantService.GetRestaurantsByOwnerIdAsync(ownerId);
             return Ok(restaurants);
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}")]
-        public async Task<IActionResult> UpdateRestaurantByOwnerAsync(int id, int ownerId, [FromBody] RestaurantOwnerUpdateDTO restaurantDto)
+        public async Task<IActionResult> UpdateRestaurantByOwnerAsync(int id, string ownerId, [FromBody] RestaurantOwnerUpdateDTO restaurantDto)
         {
             await _restaurantService.UpdateRestaurantByOwnerAsync(id, ownerId, restaurantDto);
             return Ok("Restoran je uspesno izmenjen.");
         }
 
         [HttpPost("owners/{ownerId}/restaurants/{id}/upload-photo")]
-        public async Task<IActionResult> UploadImageAsync(int id, int ownerId, IFormFile photo)
+        public async Task<IActionResult> UploadImageAsync(int id, string ownerId, IFormFile photo)
         {
             await _restaurantService.UploadRestaurantImageAsync(id, ownerId, photo);
             return Ok("Slika je uspesno uploadovana.");
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}/working-hours")]
-        public async Task<IActionResult> UpdateWorkingHoursAsync(int id, int ownerId, [FromBody] List<RestaurantWorkingHoursDTO> newHoursDto)
+        public async Task<IActionResult> UpdateWorkingHoursAsync(int id, string ownerId, [FromBody] List<RestaurantWorkingHoursDTO> newHoursDto)
         {
             await _restaurantService.UpdateWorkingHoursAsync(id, ownerId, newHoursDto);
             return Ok("Radno vreme je uspesno izmenjeno.");
         }
 
         [HttpPut("owners/{ownerId}/restaurants/{id}/non-working-days")]
-        public async Task<IActionResult> UpdateNonWorkingDaysAsync(int id, int ownerId, [FromBody] List<NonWorkingDayDTO> newNonWorkingDaysDto)
+        public async Task<IActionResult> UpdateNonWorkingDaysAsync(int id, string ownerId, [FromBody] List<NonWorkingDayDTO> newNonWorkingDaysDto)
         {
             await _restaurantService.UpdateNonWorkingDaysAsync(id, ownerId, newNonWorkingDaysDto);
             return Ok("Neradni dani su uspesno izmenjeni.");
