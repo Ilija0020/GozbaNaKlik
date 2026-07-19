@@ -1,5 +1,6 @@
 using gozba_na_klik_backend.Services.DTOs;
 using gozba_na_klik_backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik_backend.Controllers
@@ -8,32 +9,35 @@ namespace gozba_na_klik_backend.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IAuthService _authService;
 
-        public AuthController(IUserService userService)
+        public AuthController(IAuthService authService)
         {
-            _userService = userService;
+            _authService = authService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUserAsync([FromBody] UserRegisterDTO newUserDto)
         {
-            await _userService.RegisterUserAsync(newUserDto);
+            await _authService.RegisterUserAsync(newUserDto);
             return Ok("Registracija uspesna.");
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginUserAsync([FromBody] UserLoginDTO loginData)
         {
-            UserDTO user = await _userService.AuthenticateUserAsync(loginData.Username, loginData.Password);
-            return Ok(user);
+            string token = await _authService.AuthenticateUserAsync(loginData.UserName, loginData.Password);
+
+            return Ok(token);
         }
 
-        [HttpPost("register-admin")]
-        public async Task<IActionResult> RegisterByAdmin([FromBody] UserAdminRegisterDTO newUserDto)
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfileAsync()
         {
-            await _userService.RegisterUserByAdminAsync(newUserDto);
-            return Ok("Korisnik uspesno registrovan.");
+            UserDTO user = await _authService.GetProfileAsync(User);
+
+            return Ok(user);
         }
     }
 }

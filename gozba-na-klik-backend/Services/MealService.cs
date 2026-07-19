@@ -22,7 +22,7 @@ namespace gozba_na_klik_backend.Services
             _logger = logger;
         }
 
-        public async Task<MealDTO> CreateMealAsync(int ownerId, int restaurantId, MealCreateDTO mealDto)
+        public async Task<MealDTO> CreateMealAsync(string ownerId, int restaurantId, MealCreateDTO mealDto)
         {
             await GetRestaurantForOwnerAsync(ownerId, restaurantId);
             Menu menu = await GetMenuByRestaurantIdAsync(restaurantId);
@@ -46,7 +46,7 @@ namespace gozba_na_klik_backend.Services
             return _mapper.Map<MealDTO>(meal);
         }
 
-        public async Task DeleteMealAsync(int ownerId, int restaurantId, int mealId)
+        public async Task DeleteMealAsync(string ownerId, int restaurantId, int mealId)
         {
             await GetRestaurantForOwnerAsync(ownerId, restaurantId);
             Meal meal = await GetMealForRestaurantAsync(restaurantId, mealId);
@@ -62,16 +62,20 @@ namespace gozba_na_klik_backend.Services
             return _mapper.Map<List<AllergenDTO>>(allergens);
         }
 
-        public async Task<List<MealDTO>> GetMealsByRestaurantIdAsync(int ownerId, int restaurantId)
+        public async Task<List<MealDTO>> GetMealsByRestaurantIdAsync(int restaurantId)
         {
-            await GetRestaurantForOwnerAsync(ownerId, restaurantId);
+            Restaurant? restaurant = await _restaurantsRepository.GetRestaurantByIdAsync(restaurantId);
+            if (restaurant == null)
+            {
+                throw new NotFoundException("Restoran nije pronadjen.");
+            }
 
             List<Meal> meals = await _mealRepository.GetMealsByRestaurantIdAsync(restaurantId);
 
             return _mapper.Map<List<MealDTO>>(meals);
         }
 
-        public async Task<MealDTO> UpdateMealAsync(int ownerId, int restaurantId, int mealId, MealUpdateDTO mealDto)
+        public async Task<MealDTO> UpdateMealAsync(string ownerId, int restaurantId, int mealId, MealUpdateDTO mealDto)
         {
             await GetRestaurantForOwnerAsync(ownerId, restaurantId);
 
@@ -91,7 +95,7 @@ namespace gozba_na_klik_backend.Services
             return _mapper.Map<MealDTO>(meal);
         }
 
-        public async Task<MealDTO> UploadMealImageAsync(int ownerId, int restaurantId, int mealId, IFormFile image)
+        public async Task<MealDTO> UploadMealImageAsync(string ownerId, int restaurantId, int mealId, IFormFile image)
         {
             await GetRestaurantForOwnerAsync(ownerId, restaurantId);
 
@@ -110,7 +114,7 @@ namespace gozba_na_klik_backend.Services
             return _mapper.Map<MealDTO>(meal);
         }
 
-        private async Task<Restaurant> GetRestaurantForOwnerAsync(int ownerId, int restaurantId)
+        private async Task<Restaurant> GetRestaurantForOwnerAsync(string ownerId, int restaurantId)
         {
             Restaurant? restaurant = await _restaurantsRepository.GetRestaurantByIdAsync(restaurantId);
             if (restaurant == null)

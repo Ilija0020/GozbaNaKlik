@@ -1,17 +1,12 @@
-using gozba_na_klik_backend.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace gozba_na_klik_backend.Domain.Entities
 {
-    public class User
+    public class ApplicationUser : IdentityUser
     {
-        public int Id { get; set; }
         public required string Name { get; set; }
         public required string Surname { get; set; }
-        public required string Email { get; set; }
-        public required string Username { get; set; }
-        public required string Password { get; set; }
         public bool IsDeleted { get; set; } = false;
-        public Role Role { get; set; }
         public string? Photo { get; set; }
         public bool IsSuspended { get; set; } = false;
         public int? WorkplaceRestaurantId { get; set; }

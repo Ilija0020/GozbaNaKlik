@@ -8,9 +8,12 @@ namespace gozba_na_klik_backend.Services.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<User, UserDTO>();
-            CreateMap<UserRegisterDTO, User>();
-            CreateMap<UserAdminRegisterDTO, User>();
+            CreateMap<ApplicationUser, UserDTO>()
+                .ForMember(
+                    destination => destination.Role,
+                    options => options.Ignore());
+            CreateMap<UserRegisterDTO, ApplicationUser>();
+            CreateMap<UserAdminRegisterDTO, ApplicationUser>();
 
             CreateMap<Restaurant, RestaurantDTO>();
             CreateMap<RestaurantCreateDTO, Restaurant>();

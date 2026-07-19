@@ -7,7 +7,7 @@ namespace gozba_na_klik_backend.Services.DTOs
         public string? Description { get; set; }
         public string? Photo { get; set; }
         public string Address { get; set; } = string.Empty;
-        public int OwnerId { get; set; }
+        public string OwnerId { get; set; } = string.Empty;
         public List<RestaurantWorkingHoursDTO> WorkingHours { get; set; } = new();
         public List<NonWorkingDayDTO> NonWorkingDays { get; set; } = new();
     }
