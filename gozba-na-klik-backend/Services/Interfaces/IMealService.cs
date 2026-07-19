@@ -5,7 +5,7 @@ namespace gozba_na_klik_backend.Services.Interfaces
 {
     public interface IMealService
     {
-        Task<List<MealDTO>> GetMealsByRestaurantIdAsync(string ownerId, int restaurantId);
+        Task<List<MealDTO>> GetMealsByRestaurantIdAsync(int restaurantId);
         Task<MealDTO> CreateMealAsync(string ownerId, int restaurantId, MealCreateDTO mealDto);
         Task<MealDTO> UpdateMealAsync(string ownerId, int restaurantId, int mealId, MealUpdateDTO mealDto);
         Task DeleteMealAsync(string ownerId, int restaurantId, int mealId);

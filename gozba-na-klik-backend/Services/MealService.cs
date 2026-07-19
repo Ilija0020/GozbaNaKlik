@@ -62,9 +62,13 @@ namespace gozba_na_klik_backend.Services
             return _mapper.Map<List<AllergenDTO>>(allergens);
         }
 
-        public async Task<List<MealDTO>> GetMealsByRestaurantIdAsync(string ownerId, int restaurantId)
+        public async Task<List<MealDTO>> GetMealsByRestaurantIdAsync(int restaurantId)
         {
-            await GetRestaurantForOwnerAsync(ownerId, restaurantId);
+            Restaurant? restaurant = await _restaurantsRepository.GetRestaurantByIdAsync(restaurantId);
+            if (restaurant == null)
+            {
+                throw new NotFoundException("Restoran nije pronadjen.");
+            }
 
             List<Meal> meals = await _mealRepository.GetMealsByRestaurantIdAsync(restaurantId);
 

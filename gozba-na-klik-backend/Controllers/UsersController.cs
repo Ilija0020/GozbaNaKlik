@@ -1,11 +1,13 @@
 using gozba_na_klik_backend.Services.DTOs;
 using gozba_na_klik_backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik_backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;

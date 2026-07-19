@@ -1,5 +1,6 @@
 using gozba_na_klik_backend.Services.DTOs;
 using gozba_na_klik_backend.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace gozba_na_klik_backend.Controllers
@@ -25,7 +26,17 @@ namespace gozba_na_klik_backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginUserAsync([FromBody] UserLoginDTO loginData)
         {
-            UserDTO user = await _authService.AuthenticateUserAsync(loginData.Username, loginData.Password);
+            string token = await _authService.AuthenticateUserAsync(loginData.UserName, loginData.Password);
+
+            return Ok(token);
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfileAsync()
+        {
+            UserDTO user = await _authService.GetProfileAsync(User);
+
             return Ok(user);
         }
     }

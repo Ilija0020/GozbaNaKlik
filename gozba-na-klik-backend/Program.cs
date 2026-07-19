@@ -7,9 +7,14 @@ using gozba_na_klik_backend.Infrastructure.PostgreSql.Repositories;
 using gozba_na_klik_backend.Services;
 using gozba_na_klik_backend.Services.Interfaces;
 using gozba_na_klik_backend.Services.Mapping;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Security.Claims;
+using System.Text;
 
 namespace gozba_na_klik_backend
 {
@@ -32,7 +37,44 @@ namespace gozba_na_klik_backend
             });
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc(
+                    "v1",
+                    new OpenApiInfo
+                    {
+                        Title = "Gozba Na Klik API",
+                        Version = "v1"
+                    });
+
+                options.AddSecurityDefinition(
+                    "Bearer",
+                    new OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        In = ParameterLocation.Header,
+                        Description = "Unesite JWT token"
+                    });
+
+                options.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            Array.Empty<string>()
+                        }
+                    });
+            });
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -50,6 +92,35 @@ namespace gozba_na_klik_backend
                 options.Password.RequiredLength = 8;
 
                 options.User.RequireUniqueEmail = true;
+            });
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+
+                options.DefaultChallengeScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateLifetime = true,
+
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]!)),
+
+                    RoleClaimType = ClaimTypes.Role
+                };
             });
 
             builder.Services.AddScoped<IRestaurantsRepository, RestaurantsRepository>();
