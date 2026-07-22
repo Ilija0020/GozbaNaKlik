@@ -39,6 +39,15 @@ namespace gozba_na_klik_backend.Controllers
             return Ok(await _restaurantService.GetAllRestaurantsPagedAsync(filter, sortType, page));
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPublicRestaurantByIdAsync(int id)
+        {
+            PublicRestaurantDTO restaurant =
+                await _restaurantService.GetPublicRestaurantByIdAsync(id);
+
+            return Ok(restaurant);
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateRestaurantAsync([FromBody] RestaurantCreateDTO restaurantDto)

@@ -10,6 +10,7 @@ namespace gozba_na_klik_backend.Services.Interfaces
         Task<List<RestaurantDTO>> GetAllRestaurantsAsync();
         Task<PaginatedList<PublicRestaurantDTO>> GetAllRestaurantsPagedAsync(
             RestaurantFilter filter, int sortType, int page);
+        Task<PublicRestaurantDTO> GetPublicRestaurantByIdAsync(int id);
         Task CreateRestaurantAsync(RestaurantCreateDTO restaurantDto);
         Task UpdateRestaurantAsync(int id, RestaurantUpdateDTO restaurantDto);
         Task DeleteRestaurantAsync(int id);

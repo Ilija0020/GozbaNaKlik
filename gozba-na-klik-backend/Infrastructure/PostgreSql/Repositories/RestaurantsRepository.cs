@@ -59,6 +59,15 @@ namespace gozba_na_klik_backend.Infrastructure.PostgreSql.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<Restaurant?> GetPublicRestaurantByIdAsync(int id)
+        {
+            return await _context.Restaurants
+                .Where(r => r.Id == id && !r.IsDeleted)
+                .Include(r => r.WorkingHours)
+                .Include(r => r.NonWorkingDays)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task AddRestaurantAsync(Restaurant restaurant)
         {
             _context.Restaurants.Add(restaurant);

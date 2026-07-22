@@ -44,6 +44,19 @@ namespace gozba_na_klik_backend.Services
                 restaurantDtos, restaurants.Count, restaurants.PageIndex, PageSize);
         }
 
+        public async Task<PublicRestaurantDTO> GetPublicRestaurantByIdAsync(int id)
+        {
+            Restaurant? restaurant =
+                await _restaurantRepository.GetPublicRestaurantByIdAsync(id);
+
+            if (restaurant == null)
+            {
+                throw new NotFoundException("Restoran nije pronadjen.");
+            }
+
+            return _mapper.Map<PublicRestaurantDTO>(restaurant);
+        }
+
         public async Task CreateRestaurantAsync(RestaurantCreateDTO restaurantDto)
         {
             Restaurant restaurant = _mapper.Map<Restaurant>(restaurantDto);
