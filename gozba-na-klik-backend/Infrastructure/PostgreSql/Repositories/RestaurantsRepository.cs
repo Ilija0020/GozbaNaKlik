@@ -3,12 +3,15 @@ using gozba_na_klik_backend.Domain.Entities;
 using gozba_na_klik_backend.Domain.Repositories;
 using gozba_na_klik_backend.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using gozba_na_klik_backend.Domain.Queries;
+using gozba_na_klik_backend.Domain.Common;
 
 namespace gozba_na_klik_backend.Infrastructure.PostgreSql.Repositories
 {
     public class RestaurantsRepository : IRestaurantsRepository
     {
         private readonly AppDbContext _context;
+        private const int PageSize = 9;
 
         public RestaurantsRepository(AppDbContext context)
         {
@@ -21,6 +24,31 @@ namespace gozba_na_klik_backend.Infrastructure.PostgreSql.Repositories
                 .Where(r => !r.IsDeleted)
                 .Include(r => r.Owner)
                 .ToListAsync();
+        }
+
+        public async Task<PaginatedList<Restaurant>> GetAllRestaurantsPagedAsync(
+            RestaurantFilter filter, int sortType, int page)
+        {
+            IQueryable<Restaurant> restaurants = _context.Restaurants
+                .Where(restaurant => !restaurant.IsDeleted)
+                .Include(restaurant => restaurant.WorkingHours)
+                .Include(restaurant => restaurant.NonWorkingDays);
+
+            restaurants = FilterRestaurants(restaurants, filter);
+            restaurants = SortRestaurants(restaurants, sortType);
+
+            int pageIndex = page - 1;
+            int count = await restaurants.CountAsync();
+
+            List<Restaurant> items = await restaurants
+                .Skip(pageIndex * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
+
+            PaginatedList<Restaurant> result = new PaginatedList<Restaurant>(
+                items, count, pageIndex, PageSize);
+
+            return result;
         }
 
         public async Task<Restaurant?> GetRestaurantByIdAsync(int id)
@@ -85,6 +113,44 @@ namespace gozba_na_klik_backend.Infrastructure.PostgreSql.Repositories
             
             _context.Set<NonWorkingDay>().AddRange(newDays);
             await _context.SaveChangesAsync();
+        }
+
+        private IQueryable<Restaurant> FilterRestaurants(
+            IQueryable<Restaurant> restaurants, RestaurantFilter filter)
+        {
+            if (!string.IsNullOrEmpty(filter.Name))
+            {
+                restaurants = restaurants.Where(restaurant =>
+                    restaurant.Name.ToLower().Contains(filter.Name.ToLower()));
+            }
+
+            if (!string.IsNullOrEmpty(filter.Address))
+            {
+                restaurants = restaurants.Where(restaurant =>
+                    restaurant.Address.ToLower().Contains(filter.Address.ToLower()));
+            }
+
+            return restaurants;
+        }
+
+        private static IQueryable<Restaurant> SortRestaurants(IQueryable<Restaurant> restaurants, int sortType)
+        {
+            return sortType switch
+            {
+                (int)RestaurantSortType.NameAscending =>
+                    restaurants.OrderBy(restaurant => restaurant.Name),
+
+                (int)RestaurantSortType.NameDescending =>
+                    restaurants.OrderByDescending(restaurant => restaurant.Name),
+
+                (int)RestaurantSortType.AddressAscending =>
+                    restaurants.OrderBy(restaurant => restaurant.Address),
+
+                (int)RestaurantSortType.AddressDescending =>
+                    restaurants.OrderByDescending(restaurant => restaurant.Address),
+
+                _ => restaurants.OrderBy(restaurant => restaurant.Name)
+            };
         }
     }
 }

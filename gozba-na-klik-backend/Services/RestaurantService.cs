@@ -5,6 +5,8 @@ using gozba_na_klik_backend.Services.Exceptions;
 using gozba_na_klik_backend.Domain.Entities;
 using gozba_na_klik_backend.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
+using gozba_na_klik_backend.Domain.Common;
+using gozba_na_klik_backend.Domain.Queries;
 
 namespace gozba_na_klik_backend.Services
 {
@@ -13,6 +15,7 @@ namespace gozba_na_klik_backend.Services
         private readonly IRestaurantsRepository _restaurantRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<RestaurantService> _logger;
+        private const int PageSize = 9;
 
         public RestaurantService(IRestaurantsRepository restaurantRepository, IMapper mapper, ILogger<RestaurantService> logger)
         {
@@ -25,6 +28,20 @@ namespace gozba_na_klik_backend.Services
         {
             List<Restaurant> restaurants = await _restaurantRepository.GetAllRestaurantsAsync();
             return _mapper.Map<List<RestaurantDTO>>(restaurants);
+        }
+
+        public async Task<PaginatedList<PublicRestaurantDTO>> GetAllRestaurantsPagedAsync(
+            RestaurantFilter filter, int sortType, int page)
+        {
+            PaginatedList<Restaurant> restaurants = await _restaurantRepository.GetAllRestaurantsPagedAsync(
+                filter, sortType, page);
+
+            List<PublicRestaurantDTO> restaurantDtos = restaurants.Items
+                .Select(_mapper.Map<PublicRestaurantDTO>)
+                .ToList();
+
+            return new PaginatedList<PublicRestaurantDTO>(
+                restaurantDtos, restaurants.Count, restaurants.PageIndex, PageSize);
         }
 
         public async Task CreateRestaurantAsync(RestaurantCreateDTO restaurantDto)

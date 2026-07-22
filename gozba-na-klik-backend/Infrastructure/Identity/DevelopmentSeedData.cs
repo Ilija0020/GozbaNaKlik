@@ -124,6 +124,76 @@ namespace gozba_na_klik_backend.Infrastructure.Identity
                 });
 
             await context.SaveChangesAsync();
+
+            await AddMealAllergensAsync(context);
+
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task AddMealAllergensAsync(AppDbContext context)
+        {
+            Dictionary<int, int[]> mealAllergenIds = new()
+            {
+                { 102, new[] { 1, 2 } },
+                { 103, new[] { 2 } },
+                { 104, new[] { 1, 9 } },
+
+                { 105, new[] { 1, 2 } },
+                { 106, new[] { 1, 2 } },
+                { 107, new[] { 1, 2 } },
+                { 108, new[] { 1 } },
+
+                { 109, new[] { 1, 2, 5 } },
+                { 110, new[] { 9 } },
+                { 111, new[] { 1, 2, 5 } },
+                { 112, new[] { 1 } },
+
+                { 115, new[] { 10 } },
+
+                { 117, new[] { 9 } },
+                { 118, new[] { 2 } },
+                { 119, new[] { 1, 5, 11 } },
+                { 120, new[] { 1, 2, 5 } },
+
+                { 121, new[] { 1 } },
+                { 122, new[] { 1, 2 } },
+                { 123, new[] { 1, 2, 5 } },
+                { 124, new[] { 2 } }
+            };
+
+            Dictionary<int, Meal> meals = await context.Meals
+                .Where(meal => mealAllergenIds.Keys.Contains(meal.Id))
+                .Include(meal => meal.Allergens)
+                .ToDictionaryAsync(meal => meal.Id);
+
+            Dictionary<int, Allergen> allergens = await context.Allergens
+                .ToDictionaryAsync(allergen => allergen.Id);
+
+            foreach (KeyValuePair<int, int[]> mealAllergen in mealAllergenIds)
+            {
+                if (!meals.TryGetValue(mealAllergen.Key, out Meal? meal))
+                {
+                    continue;
+                }
+
+                meal.Allergens ??= new List<Allergen>();
+
+                foreach (int allergenId in mealAllergen.Value)
+                {
+                    if (!allergens.TryGetValue(allergenId, out Allergen? allergen))
+                    {
+                        continue;
+                    }
+
+                    bool alreadyAdded = meal.Allergens.Any(
+                        existingAllergen => existingAllergen.Id == allergenId);
+
+                    if (!alreadyAdded)
+                    {
+                        meal.Allergens.Add(allergen);
+                    }
+                }
+            }
         }
 
         private static async Task<ApplicationUser> CreateOwnerAsync(

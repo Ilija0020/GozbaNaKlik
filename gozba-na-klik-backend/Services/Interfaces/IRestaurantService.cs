@@ -1,3 +1,5 @@
+using gozba_na_klik_backend.Domain.Common;
+using gozba_na_klik_backend.Domain.Queries;
 using gozba_na_klik_backend.Services.DTOs;
 using Microsoft.AspNetCore.Http;
 
@@ -6,6 +8,8 @@ namespace gozba_na_klik_backend.Services.Interfaces
     public interface IRestaurantService
     {
         Task<List<RestaurantDTO>> GetAllRestaurantsAsync();
+        Task<PaginatedList<PublicRestaurantDTO>> GetAllRestaurantsPagedAsync(
+            RestaurantFilter filter, int sortType, int page);
         Task CreateRestaurantAsync(RestaurantCreateDTO restaurantDto);
         Task UpdateRestaurantAsync(int id, RestaurantUpdateDTO restaurantDto);
         Task DeleteRestaurantAsync(int id);
