@@ -16,6 +16,7 @@ namespace gozba_na_klik_backend.Services.Mapping
             CreateMap<UserAdminRegisterDTO, ApplicationUser>();
 
             CreateMap<Restaurant, RestaurantDTO>();
+            CreateMap<Restaurant, PublicRestaurantDTO>();
             CreateMap<RestaurantCreateDTO, Restaurant>();
             CreateMap<RestaurantUpdateDTO, Restaurant>();
             CreateMap<RestaurantOwnerUpdateDTO, Restaurant>();

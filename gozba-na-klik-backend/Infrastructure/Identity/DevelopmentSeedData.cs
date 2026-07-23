@@ -124,6 +124,234 @@ namespace gozba_na_klik_backend.Infrastructure.Identity
                 });
 
             await context.SaveChangesAsync();
+
+            await AddMealAllergensAsync(context);
+            await AddSeedPhotosAsync(context);
+            await AddRestaurantAvailabilityAsync(context);
+
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task AddSeedPhotosAsync(AppDbContext context)
+        {
+            Dictionary<int, string> restaurantPhotos = new()
+            {
+                { 101, "/images/seed/restaurant-kod-petra.webp" },
+                { 102, "/images/seed/restaurant-petrova-picerija.webp" },
+                { 103, "/images/seed/restaurant-markova-kafana.webp" },
+                { 104, "/images/seed/restaurant-marko-grill.webp" },
+                { 105, "/images/seed/restaurant-jovanov.webp" },
+                { 106, "/images/seed/restaurant-pekara-jovan.webp" }
+            };
+
+            Dictionary<int, string> mealPhotos = new()
+            {
+                { 101, "/images/seed/meal-cevapi.webp" },
+                { 102, "/images/seed/meal-pljeskavica.webp" },
+                { 103, "/images/seed/meal-sopska-salata.webp" },
+                { 104, "/images/seed/meal-teleca-corba.webp" },
+                { 105, "/images/seed/meal-kapricoza.webp" },
+                { 106, "/images/seed/meal-margarita.webp" },
+                { 107, "/images/seed/meal-madjarica.webp" },
+                { 108, "/images/seed/meal-pica-hleb.webp" },
+                { 109, "/images/seed/meal-karadjordjeva.webp" },
+                { 110, "/images/seed/meal-svadbarski-kupus.webp" },
+                { 111, "/images/seed/meal-pohovani-kackavalj.webp" },
+                { 112, "/images/seed/meal-domaca-pogaca.webp" },
+                { 113, "/images/seed/meal-batak-na-zaru.webp" },
+                { 114, "/images/seed/meal-belo-meso.webp" },
+                { 115, "/images/seed/meal-kobasice.webp" },
+                { 116, "/images/seed/meal-pomfrit.webp" },
+                { 117, "/images/seed/meal-gulas.webp" },
+                { 118, "/images/seed/meal-pire-krompir.webp" },
+                { 119, "/images/seed/meal-pohovana-piletina.webp" },
+                { 120, "/images/seed/meal-krempita.webp" },
+                { 121, "/images/seed/meal-burek-meso.webp" },
+                { 122, "/images/seed/meal-burek-sir.webp" },
+                { 123, "/images/seed/meal-kroasan-cokolada.webp" },
+                { 124, "/images/seed/meal-jogurt.webp" }
+            };
+
+            List<Restaurant> restaurants = await context.Restaurants
+                .Where(restaurant => restaurantPhotos.Keys.Contains(restaurant.Id))
+                .ToListAsync();
+
+            foreach (Restaurant restaurant in restaurants)
+            {
+                if (string.IsNullOrWhiteSpace(restaurant.Photo))
+                {
+                    restaurant.Photo = restaurantPhotos[restaurant.Id];
+                }
+            }
+
+            List<Meal> meals = await context.Meals
+                .Where(meal => mealPhotos.Keys.Contains(meal.Id))
+                .ToListAsync();
+
+            foreach (Meal meal in meals)
+            {
+                if (string.IsNullOrWhiteSpace(meal.Photo))
+                {
+                    meal.Photo = mealPhotos[meal.Id];
+                }
+            }
+        }
+
+        private static async Task AddRestaurantAvailabilityAsync(AppDbContext context)
+        {
+            DayOfWeek[] everyDay = Enum.GetValues<DayOfWeek>();
+            DayOfWeek[] mondayToSaturday =
+            {
+                DayOfWeek.Monday,
+                DayOfWeek.Tuesday,
+                DayOfWeek.Wednesday,
+                DayOfWeek.Thursday,
+                DayOfWeek.Friday,
+                DayOfWeek.Saturday
+            };
+            DayOfWeek[] tuesdayToSunday =
+            {
+                DayOfWeek.Tuesday,
+                DayOfWeek.Wednesday,
+                DayOfWeek.Thursday,
+                DayOfWeek.Friday,
+                DayOfWeek.Saturday,
+                DayOfWeek.Sunday
+            };
+
+            Dictionary<int, (TimeSpan Start, TimeSpan End, bool EndsNextDay, DayOfWeek[] Days)>
+                workingHours = new()
+                {
+                    { 101, (new TimeSpan(10, 0, 0), new TimeSpan(23, 0, 0), false, everyDay) },
+                    { 102, (new TimeSpan(12, 0, 0), new TimeSpan(23, 0, 0), false, everyDay) },
+                    { 103, (new TimeSpan(11, 0, 0), new TimeSpan(1, 0, 0), true, tuesdayToSunday) },
+                    { 104, (new TimeSpan(10, 0, 0), new TimeSpan(23, 0, 0), false, everyDay) },
+                    { 105, (new TimeSpan(9, 0, 0), new TimeSpan(22, 0, 0), false, mondayToSaturday) },
+                    { 106, (new TimeSpan(6, 0, 0), new TimeSpan(22, 0, 0), false, everyDay) }
+                };
+
+            Dictionary<int, DateOnly[]> nonWorkingDays = new()
+            {
+                { 101, new[] { new DateOnly(2026, 8, 15) } },
+                { 102, new[] { new DateOnly(2026, 8, 20) } },
+                { 103, new[] { new DateOnly(2026, 8, 25) } },
+                { 104, new[] { new DateOnly(2026, 9, 1) } },
+                { 105, new[] { new DateOnly(2026, 9, 5) } },
+                { 106, new[] { new DateOnly(2026, 9, 10) } }
+            };
+
+            List<Restaurant> restaurants = await context.Restaurants
+                .Where(restaurant => workingHours.Keys.Contains(restaurant.Id))
+                .Include(restaurant => restaurant.WorkingHours)
+                .Include(restaurant => restaurant.NonWorkingDays)
+                .ToListAsync();
+
+            foreach (Restaurant restaurant in restaurants)
+            {
+                restaurant.WorkingHours ??= new List<RestaurantWorkingHours>();
+                restaurant.NonWorkingDays ??= new List<NonWorkingDay>();
+
+                var schedule = workingHours[restaurant.Id];
+
+                foreach (DayOfWeek day in schedule.Days)
+                {
+                    bool alreadyHasWorkingHours = restaurant.WorkingHours.Any(
+                        workingHoursForDay => workingHoursForDay.Day == day);
+
+                    if (!alreadyHasWorkingHours)
+                    {
+                        restaurant.WorkingHours.Add(new RestaurantWorkingHours
+                        {
+                            Day = day,
+                            StartTime = schedule.Start,
+                            EndTime = schedule.End,
+                            EndsNextDay = schedule.EndsNextDay,
+                            RestaurantId = restaurant.Id
+                        });
+                    }
+                }
+
+                foreach (DateOnly date in nonWorkingDays[restaurant.Id])
+                {
+                    bool alreadyHasNonWorkingDay = restaurant.NonWorkingDays.Any(
+                        nonWorkingDay => nonWorkingDay.Date == date);
+
+                    if (!alreadyHasNonWorkingDay)
+                    {
+                        restaurant.NonWorkingDays.Add(new NonWorkingDay
+                        {
+                            Date = date,
+                            RestaurantId = restaurant.Id
+                        });
+                    }
+                }
+            }
+        }
+
+        private static async Task AddMealAllergensAsync(AppDbContext context)
+        {
+            Dictionary<int, int[]> mealAllergenIds = new()
+            {
+                { 102, new[] { 1, 2 } },
+                { 103, new[] { 2 } },
+                { 104, new[] { 1, 9 } },
+
+                { 105, new[] { 1, 2 } },
+                { 106, new[] { 1, 2 } },
+                { 107, new[] { 1, 2 } },
+                { 108, new[] { 1 } },
+
+                { 109, new[] { 1, 2, 5 } },
+                { 110, new[] { 9 } },
+                { 111, new[] { 1, 2, 5 } },
+                { 112, new[] { 1 } },
+
+                { 115, new[] { 10 } },
+
+                { 117, new[] { 9 } },
+                { 118, new[] { 2 } },
+                { 119, new[] { 1, 5, 11 } },
+                { 120, new[] { 1, 2, 5 } },
+
+                { 121, new[] { 1 } },
+                { 122, new[] { 1, 2 } },
+                { 123, new[] { 1, 2, 5 } },
+                { 124, new[] { 2 } }
+            };
+
+            Dictionary<int, Meal> meals = await context.Meals
+                .Where(meal => mealAllergenIds.Keys.Contains(meal.Id))
+                .Include(meal => meal.Allergens)
+                .ToDictionaryAsync(meal => meal.Id);
+
+            Dictionary<int, Allergen> allergens = await context.Allergens
+                .ToDictionaryAsync(allergen => allergen.Id);
+
+            foreach (KeyValuePair<int, int[]> mealAllergen in mealAllergenIds)
+            {
+                if (!meals.TryGetValue(mealAllergen.Key, out Meal? meal))
+                {
+                    continue;
+                }
+
+                meal.Allergens ??= new List<Allergen>();
+
+                foreach (int allergenId in mealAllergen.Value)
+                {
+                    if (!allergens.TryGetValue(allergenId, out Allergen? allergen))
+                    {
+                        continue;
+                    }
+
+                    bool alreadyAdded = meal.Allergens.Any(
+                        existingAllergen => existingAllergen.Id == allergenId);
+
+                    if (!alreadyAdded)
+                    {
+                        meal.Allergens.Add(allergen);
+                    }
+                }
+            }
         }
 
         private static async Task<ApplicationUser> CreateOwnerAsync(
